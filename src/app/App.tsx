@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Activity, Users, Calendar, FileText, Settings, Bell,
   ChevronRight, Search, Save, ClipboardList,
@@ -26,70 +26,70 @@ const DEFAULT_ESCALATION: EscalationState = {
 
 const PATIENTS: Record<string, Patient> = {
   p1: {
-    id: "p1", name: "Robert Fanning", dob: "Mar 14, 1958", age: 66, gender: "Male",
-    mrn: "MRN-1093045", insurance: "Medicare Advantage", phone: "(612) 555-0184",
-    email: "r.fanning@email.com", address: "2214 Oak Ridge Dr, Minneapolis, MN 55401",
+    id: "p1", name: "John Doe", dob: "Jan 1, 1958", age: 66, gender: "Male",
+    mrn: "MRN-FAKE-0001", insurance: "Sample Insurance Plan A", phone: "(555) 555-0101",
+    email: "john.doe@example.test", address: "123 Fictional Ln, Anytown, ST 00001",
     allergies: ["Codeine"], diagnosis: "Non-Small Cell Lung Cancer (NSCLC)",
     stage: "Stage IIIB · PD-L1 ≥50%", ecog: "ECOG 1",
     cycleInfo: "Pembrolizumab · Cycle 9, Day 1",
     conditions: ["HTN", "Type 2 Diabetes", "CKD Stage 2"],
     medications: ["Pembrolizumab 200mg Q3W", "Metformin 1000mg BID", "Lisinopril 10mg daily"],
-    lastVisit: "Jun 18, 2026", oncologist: "Dr. A. Patel", nurse: "T. Robinson, RN",
+    lastVisit: "Jun 18, 2026", oncologist: "Dr. Alex Fake", nurse: "Nurse Fake, RN",
   },
   p2: {
-    id: "p2", name: "Priya Nair", dob: "Jul 22, 1985", age: 40, gender: "Female",
-    mrn: "MRN-2204817", insurance: "Blue Cross PPO", phone: "(612) 555-0237",
-    email: "p.nair@email.com", address: "819 Birchwood Ave, St. Paul, MN 55105",
+    id: "p2", name: "Jane Doe", dob: "Jan 1, 1985", age: 40, gender: "Female",
+    mrn: "MRN-FAKE-0002", insurance: "Sample Insurance Plan B", phone: "(555) 555-0102",
+    email: "jane.doe@example.test", address: "456 Fictional Ln, Anytown, ST 00001",
     allergies: ["Penicillin", "Sulfa"], diagnosis: "Triple-Negative Breast Cancer (TNBC)",
     stage: "Stage II · PD-L1 CPS 22", ecog: "ECOG 0",
     cycleInfo: "Pembrolizumab + Paclitaxel · Cycle 4, Day 1",
     conditions: ["Anxiety", "Hypothyroidism"],
     medications: ["Pembrolizumab 200mg Q3W", "Paclitaxel 80mg/m² weekly", "Levothyroxine 75mcg daily"],
-    lastVisit: "Jun 11, 2026", oncologist: "Dr. A. Patel", nurse: "M. Chen, RN",
+    lastVisit: "Jun 11, 2026", oncologist: "Dr. Alex Fake", nurse: "Nurse Fictional, RN",
   },
   p3: {
-    id: "p3", name: "Thomas Osei", dob: "Nov 3, 1971", age: 53, gender: "Male",
-    mrn: "MRN-3381924", insurance: "Aetna HMO", phone: "(651) 555-0319",
-    email: "t.osei@email.com", address: "440 Linden St, Edina, MN 55424",
+    id: "p3", name: "Rob Doe", dob: "Jan 1, 1971", age: 53, gender: "Male",
+    mrn: "MRN-FAKE-0003", insurance: "Sample Insurance Plan C", phone: "(555) 555-0103",
+    email: "rob.doe@example.test", address: "789 Fictional Ln, Anytown, ST 00001",
     allergies: [], diagnosis: "Metastatic Melanoma",
     stage: "Stage IV · BRAF V600E wild-type", ecog: "ECOG 1",
     cycleInfo: "Nivolumab + Ipilimumab · Cycle 2, Day 1",
     conditions: ["GERD", "Hyperlipidemia"],
     medications: ["Nivolumab 3mg/kg Q3W", "Ipilimumab 1mg/kg Q6W", "Omeprazole 20mg daily"],
-    lastVisit: "Jun 18, 2026", oncologist: "Dr. S. Kim", nurse: "T. Robinson, RN",
+    lastVisit: "Jun 18, 2026", oncologist: "Dr. Sam Fictional", nurse: "Nurse Fake, RN",
   },
   p4: {
-    id: "p4", name: "Linda Morales", dob: "Apr 30, 1949", age: 76, gender: "Female",
-    mrn: "MRN-4452309", insurance: "Medicare", phone: "(952) 555-0472",
-    email: "l.morales@email.com", address: "31 Maple Grove Rd, Bloomington, MN 55420",
+    id: "p4", name: "Linda Doe", dob: "Jan 1, 1949", age: 76, gender: "Female",
+    mrn: "MRN-FAKE-0004", insurance: "Sample Insurance Plan D", phone: "(555) 555-0104",
+    email: "linda.doe@example.test", address: "234 Fictional Ln, Anytown, ST 00001",
     allergies: ["Aspirin (GI bleed)"], diagnosis: "Ovarian Cancer (High-Grade Serous)",
     stage: "Stage IIIC · BRCA1 mutated", ecog: "ECOG 2",
     cycleInfo: "Carboplatin + Paclitaxel · Cycle 3, Day 1",
     conditions: ["Atrial Fibrillation", "Osteoporosis"],
     medications: ["Carboplatin AUC 5 Q3W", "Paclitaxel 175mg/m² Q3W", "Apixaban 5mg BID"],
-    lastVisit: "Jun 18, 2026", oncologist: "Dr. S. Kim", nurse: "M. Chen, RN",
+    lastVisit: "Jun 18, 2026", oncologist: "Dr. Sam Fictional", nurse: "Nurse Fictional, RN",
   },
   p5: {
-    id: "p5", name: "James Whitfield", dob: "Sep 7, 1990", age: 35, gender: "Male",
-    mrn: "MRN-5510482", insurance: "United Health PPO", phone: "(763) 555-0551",
-    email: "j.whitfield@email.com", address: "7702 Cedar Lake Rd, Plymouth, MN 55441",
+    id: "p5", name: "James Doe", dob: "Jan 1, 1990", age: 35, gender: "Male",
+    mrn: "MRN-FAKE-0005", insurance: "Sample Insurance Plan E", phone: "(555) 555-0105",
+    email: "james.doe@example.test", address: "567 Fictional Ln, Anytown, ST 00001",
     allergies: [], diagnosis: "Classical Hodgkin Lymphoma",
     stage: "Stage IIB · Relapsed/Refractory", ecog: "ECOG 1",
     cycleInfo: "Pembrolizumab · Cycle 6, Day 1",
     conditions: ["Asthma (mild)"],
     medications: ["Pembrolizumab 200mg Q3W", "Albuterol inhaler PRN"],
-    lastVisit: "Jun 18, 2026", oncologist: "Dr. A. Patel", nurse: "T. Robinson, RN",
+    lastVisit: "Jun 18, 2026", oncologist: "Dr. Alex Fake", nurse: "Nurse Fake, RN",
   },
   p6: {
-    id: "p6", name: "Diana Rourke", dob: "Feb 19, 1963", age: 63, gender: "Female",
-    mrn: "MRN-6672103", insurance: "Cigna PPO", phone: "(612) 555-0698",
-    email: "d.rourke@email.com", address: "1005 Park Ave S, Minneapolis, MN 55404",
+    id: "p6", name: "Diana Doe", dob: "Jan 1, 1963", age: 63, gender: "Female",
+    mrn: "MRN-FAKE-0006", insurance: "Sample Insurance Plan F", phone: "(555) 555-0106",
+    email: "diana.doe@example.test", address: "890 Fictional Ln, Anytown, ST 00001",
     allergies: ["Sulfa"], diagnosis: "Renal Cell Carcinoma (Clear Cell)",
     stage: "Stage IV · PD-L1 positive", ecog: "ECOG 0",
     cycleInfo: "Nivolumab + Cabozantinib · Cycle 11, Day 1",
     conditions: ["Hypothyroidism", "HTN"],
     medications: ["Nivolumab 240mg Q4W", "Cabozantinib 40mg daily", "Levothyroxine 50mcg daily"],
-    lastVisit: "Jun 11, 2026", oncologist: "Dr. S. Kim", nurse: "M. Chen, RN",
+    lastVisit: "Jun 11, 2026", oncologist: "Dr. Sam Fictional", nurse: "Nurse Fictional, RN",
   },
 };
 
@@ -147,12 +147,12 @@ const MOCK_LABS: Record<string, {label:string;value:string;unit:string;flag?:"H"
 };
 
 const MOCK_DOCS: Record<string, {type:string;description:string;date:string;provider:string}[]> = {
-  p1:[{type:"Lab Report",description:"CBC, CMP, TSH — C8D1 pre-treatment",date:"Jun 18, 2026",provider:"Lab"},{type:"Progress Note",description:"Pembrolizumab C8D1 — tolerated well, mild fatigue",date:"Jun 18, 2026",provider:"Dr. A. Patel"},{type:"Imaging Report",description:"CT chest — stable disease, no new lesions",date:"May 5, 2026",provider:"Radiology"}],
-  p2:[{type:"Lab Report",description:"CBC, CMP, TSH — C3D1 pre-treatment",date:"Jun 11, 2026",provider:"Lab"},{type:"Imaging Report",description:"CT chest/abdomen — PR confirmed, 32% reduction",date:"Jun 10, 2026",provider:"Radiology"},{type:"Progress Note",description:"C3D1 — ANC nadir, hold paclitaxel discussed",date:"Jun 11, 2026",provider:"Dr. A. Patel"}],
-  p3:[{type:"Consult Note",description:"GI consult — irAE colitis evaluation",date:"Jun 5, 2026",provider:"GI"},{type:"Lab Report",description:"CBC, LFTs — ALT elevated 2× ULN",date:"Jun 18, 2026",provider:"Lab"},{type:"Progress Note",description:"Nivo/Ipi C1D1 — Grade 2 diarrhea reported",date:"Jun 18, 2026",provider:"Dr. S. Kim"}],
-  p4:[{type:"Lab Report",description:"CBC critical — WBC 2.8, ANC 0.9",date:"Jun 18, 2026",provider:"Lab"},{type:"Progress Note",description:"Hematology notified — cycle hold recommended",date:"Jun 18, 2026",provider:"Dr. S. Kim"},{type:"Consult Note",description:"Hematology consult — G-CSF support plan",date:"Jun 19, 2026",provider:"Hematology"}],
-  p5:[{type:"Lab Report",description:"CBC, CMP, TSH — C5D1 pre-treatment",date:"Jun 18, 2026",provider:"Lab"},{type:"Imaging Report",description:"PET scan — complete metabolic response",date:"May 29, 2026",provider:"Radiology"},{type:"Progress Note",description:"C5D1 — no toxicities, excellent response",date:"Jun 18, 2026",provider:"Dr. A. Patel"}],
-  p6:[{type:"Lab Report",description:"CBC, LFTs, TSH — TSH 6.2 elevated",date:"Jun 11, 2026",provider:"Lab"},{type:"Consult Note",description:"Endocrinology referral — thyroiditis workup",date:"Jun 12, 2026",provider:"Endocrinology"},{type:"Progress Note",description:"C10D1 — Grade 1 HFS, TSH elevated",date:"Jun 11, 2026",provider:"Dr. S. Kim"}],
+  p1:[{type:"Lab Report",description:"CBC, CMP, TSH — C8D1 pre-treatment",date:"Jun 18, 2026",provider:"Lab"},{type:"Progress Note",description:"Pembrolizumab C8D1 — tolerated well, mild fatigue",date:"Jun 18, 2026",provider:"Dr. Alex Fake"},{type:"Imaging Report",description:"CT chest — stable disease, no new lesions",date:"May 5, 2026",provider:"Radiology"}],
+  p2:[{type:"Lab Report",description:"CBC, CMP, TSH — C3D1 pre-treatment",date:"Jun 11, 2026",provider:"Lab"},{type:"Imaging Report",description:"CT chest/abdomen — PR confirmed, 32% reduction",date:"Jun 10, 2026",provider:"Radiology"},{type:"Progress Note",description:"C3D1 — ANC nadir, hold paclitaxel discussed",date:"Jun 11, 2026",provider:"Dr. Alex Fake"}],
+  p3:[{type:"Consult Note",description:"GI consult — irAE colitis evaluation",date:"Jun 5, 2026",provider:"GI"},{type:"Lab Report",description:"CBC, LFTs — ALT elevated 2× ULN",date:"Jun 18, 2026",provider:"Lab"},{type:"Progress Note",description:"Nivo/Ipi C1D1 — Grade 2 diarrhea reported",date:"Jun 18, 2026",provider:"Dr. Sam Fictional"}],
+  p4:[{type:"Lab Report",description:"CBC critical — WBC 2.8, ANC 0.9",date:"Jun 18, 2026",provider:"Lab"},{type:"Progress Note",description:"Hematology notified — cycle hold recommended",date:"Jun 18, 2026",provider:"Dr. Sam Fictional"},{type:"Consult Note",description:"Hematology consult — G-CSF support plan",date:"Jun 19, 2026",provider:"Hematology"}],
+  p5:[{type:"Lab Report",description:"CBC, CMP, TSH — C5D1 pre-treatment",date:"Jun 18, 2026",provider:"Lab"},{type:"Imaging Report",description:"PET scan — complete metabolic response",date:"May 29, 2026",provider:"Radiology"},{type:"Progress Note",description:"C5D1 — no toxicities, excellent response",date:"Jun 18, 2026",provider:"Dr. Alex Fake"}],
+  p6:[{type:"Lab Report",description:"CBC, LFTs, TSH — TSH 6.2 elevated",date:"Jun 11, 2026",provider:"Lab"},{type:"Consult Note",description:"Endocrinology referral — thyroiditis workup",date:"Jun 12, 2026",provider:"Endocrinology"},{type:"Progress Note",description:"C10D1 — Grade 1 HFS, TSH elevated",date:"Jun 11, 2026",provider:"Dr. Sam Fictional"}],
 };
 
 // ─── Utility / shared UI ──────────────────────────────────────────────────────
@@ -222,40 +222,40 @@ function MedCombobox({ value, meds, onChange }: { value: string; meds: string[];
 
 const MOCK_VISITS: Record<string, VisitRecord[]> = {
   p1:[
-    {id:"v1-9",date:"Jul 9, 2026", type:"Immunotherapy Infusion",      category:"immunotherapy",status:"in-progress",cycle:"Cycle 9, Day 1",  provider:"Dr. A. Patel"},
-    {id:"v1-8",date:"Jun 18, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 8, Day 1",  provider:"Dr. A. Patel"},
-    {id:"v1-7",date:"May 28, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 7, Day 1",  provider:"Dr. A. Patel"},
-    {id:"v1-6",date:"May 7, 2026", type:"Treatment Response Review",   category:"follow-up",    status:"completed",  cycle:"Cycle 6 Follow-up",provider:"Dr. A. Patel"},
-    {id:"v1-5",date:"Apr 16, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 6, Day 1",  provider:"Dr. A. Patel"},
+    {id:"v1-9",date:"Jul 9, 2026", type:"Immunotherapy Infusion",      category:"immunotherapy",status:"in-progress",cycle:"Cycle 9, Day 1",  provider:"Dr. Alex Fake"},
+    {id:"v1-8",date:"Jun 18, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 8, Day 1",  provider:"Dr. Alex Fake"},
+    {id:"v1-7",date:"May 28, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 7, Day 1",  provider:"Dr. Alex Fake"},
+    {id:"v1-6",date:"May 7, 2026", type:"Treatment Response Review",   category:"follow-up",    status:"completed",  cycle:"Cycle 6 Follow-up",provider:"Dr. Alex Fake"},
+    {id:"v1-5",date:"Apr 16, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 6, Day 1",  provider:"Dr. Alex Fake"},
   ],
   p2:[
-    {id:"v2-4",date:"Jul 9, 2026", type:"Immunotherapy + Chemo Infusion",category:"immunotherapy",status:"in-progress",cycle:"Cycle 4, Day 1", provider:"Dr. A. Patel"},
-    {id:"v2-3",date:"Jun 11, 2026",type:"Immunotherapy + Chemo Infusion",category:"immunotherapy",status:"completed",  cycle:"Cycle 3, Day 1", provider:"Dr. A. Patel"},
-    {id:"v2-2",date:"May 21, 2026",type:"Immunotherapy + Chemo Infusion",category:"immunotherapy",status:"completed",  cycle:"Cycle 2, Day 1", provider:"Dr. A. Patel"},
-    {id:"v2-1",date:"Apr 30, 2026",type:"New Patient Consultation",      category:"consult",      status:"completed",  cycle:"Initial Consult", provider:"Dr. A. Patel"},
+    {id:"v2-4",date:"Jul 9, 2026", type:"Immunotherapy + Chemo Infusion",category:"immunotherapy",status:"in-progress",cycle:"Cycle 4, Day 1", provider:"Dr. Alex Fake"},
+    {id:"v2-3",date:"Jun 11, 2026",type:"Immunotherapy + Chemo Infusion",category:"immunotherapy",status:"completed",  cycle:"Cycle 3, Day 1", provider:"Dr. Alex Fake"},
+    {id:"v2-2",date:"May 21, 2026",type:"Immunotherapy + Chemo Infusion",category:"immunotherapy",status:"completed",  cycle:"Cycle 2, Day 1", provider:"Dr. Alex Fake"},
+    {id:"v2-1",date:"Apr 30, 2026",type:"New Patient Consultation",      category:"consult",      status:"completed",  cycle:"Initial Consult", provider:"Dr. Alex Fake"},
   ],
   p3:[
-    {id:"v3-2",date:"Jul 9, 2026", type:"Pre-Treatment Assessment",    category:"immunotherapy",status:"in-progress",cycle:"Cycle 2, Day 1",  provider:"Dr. S. Kim"},
-    {id:"v3-1",date:"Jun 18, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 1, Day 1",  provider:"Dr. S. Kim"},
-    {id:"v3-0",date:"May 28, 2026",type:"New Patient Consultation",    category:"consult",      status:"completed",  cycle:"Initial Consult",  provider:"Dr. S. Kim"},
+    {id:"v3-2",date:"Jul 9, 2026", type:"Pre-Treatment Assessment",    category:"immunotherapy",status:"in-progress",cycle:"Cycle 2, Day 1",  provider:"Dr. Sam Fictional"},
+    {id:"v3-1",date:"Jun 18, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 1, Day 1",  provider:"Dr. Sam Fictional"},
+    {id:"v3-0",date:"May 28, 2026",type:"New Patient Consultation",    category:"consult",      status:"completed",  cycle:"Initial Consult",  provider:"Dr. Sam Fictional"},
   ],
   p4:[
-    {id:"v4-3",date:"Jul 9, 2026", type:"Chemotherapy Infusion",       category:"chemotherapy", status:"in-progress",cycle:"Cycle 3, Day 1",  provider:"Dr. S. Kim"},
-    {id:"v4-2",date:"Jun 18, 2026",type:"Chemotherapy Infusion",       category:"chemotherapy", status:"completed",  cycle:"Cycle 2, Day 1",  provider:"Dr. S. Kim"},
-    {id:"v4-1",date:"May 28, 2026",type:"Chemotherapy Infusion",       category:"chemotherapy", status:"completed",  cycle:"Cycle 1, Day 1",  provider:"Dr. S. Kim"},
-    {id:"v4-0",date:"May 7, 2026", type:"New Patient Consultation",    category:"consult",      status:"completed",  cycle:"Initial Consult",  provider:"Dr. S. Kim"},
+    {id:"v4-3",date:"Jul 9, 2026", type:"Chemotherapy Infusion",       category:"chemotherapy", status:"in-progress",cycle:"Cycle 3, Day 1",  provider:"Dr. Sam Fictional"},
+    {id:"v4-2",date:"Jun 18, 2026",type:"Chemotherapy Infusion",       category:"chemotherapy", status:"completed",  cycle:"Cycle 2, Day 1",  provider:"Dr. Sam Fictional"},
+    {id:"v4-1",date:"May 28, 2026",type:"Chemotherapy Infusion",       category:"chemotherapy", status:"completed",  cycle:"Cycle 1, Day 1",  provider:"Dr. Sam Fictional"},
+    {id:"v4-0",date:"May 7, 2026", type:"New Patient Consultation",    category:"consult",      status:"completed",  cycle:"Initial Consult",  provider:"Dr. Sam Fictional"},
   ],
   p5:[
-    {id:"v5-6",date:"Jul 9, 2026", type:"Immunotherapy Infusion",      category:"immunotherapy",status:"in-progress",cycle:"Cycle 6, Day 1",  provider:"Dr. A. Patel"},
-    {id:"v5-5",date:"Jun 18, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 5, Day 1",  provider:"Dr. A. Patel"},
-    {id:"v5-4",date:"May 28, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 4, Day 1",  provider:"Dr. A. Patel"},
-    {id:"v5-3",date:"May 7, 2026", type:"Treatment Response Review",   category:"follow-up",    status:"completed",  cycle:"Cycle 3 Follow-up",provider:"Dr. A. Patel"},
+    {id:"v5-6",date:"Jul 9, 2026", type:"Immunotherapy Infusion",      category:"immunotherapy",status:"in-progress",cycle:"Cycle 6, Day 1",  provider:"Dr. Alex Fake"},
+    {id:"v5-5",date:"Jun 18, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 5, Day 1",  provider:"Dr. Alex Fake"},
+    {id:"v5-4",date:"May 28, 2026",type:"Immunotherapy Infusion",      category:"immunotherapy",status:"completed",  cycle:"Cycle 4, Day 1",  provider:"Dr. Alex Fake"},
+    {id:"v5-3",date:"May 7, 2026", type:"Treatment Response Review",   category:"follow-up",    status:"completed",  cycle:"Cycle 3 Follow-up",provider:"Dr. Alex Fake"},
   ],
   p6:[
-    {id:"v6-11",date:"Jul 9, 2026", type:"Treatment Response & Toxicity Review",category:"follow-up",    status:"in-progress",cycle:"Cycle 11 Review", provider:"Dr. S. Kim"},
-    {id:"v6-10",date:"Jun 11, 2026",type:"Immunotherapy Infusion",              category:"immunotherapy",status:"completed",  cycle:"Cycle 10, Day 1",provider:"Dr. S. Kim"},
-    {id:"v6-9", date:"May 14, 2026",type:"Immunotherapy Infusion",              category:"immunotherapy",status:"completed",  cycle:"Cycle 9, Day 1", provider:"Dr. S. Kim"},
-    {id:"v6-8", date:"Apr 16, 2026",type:"Immunotherapy Infusion",              category:"immunotherapy",status:"completed",  cycle:"Cycle 8, Day 1", provider:"Dr. S. Kim"},
+    {id:"v6-11",date:"Jul 9, 2026", type:"Treatment Response & Toxicity Review",category:"follow-up",    status:"in-progress",cycle:"Cycle 11 Review", provider:"Dr. Sam Fictional"},
+    {id:"v6-10",date:"Jun 11, 2026",type:"Immunotherapy Infusion",              category:"immunotherapy",status:"completed",  cycle:"Cycle 10, Day 1",provider:"Dr. Sam Fictional"},
+    {id:"v6-9", date:"May 14, 2026",type:"Immunotherapy Infusion",              category:"immunotherapy",status:"completed",  cycle:"Cycle 9, Day 1", provider:"Dr. Sam Fictional"},
+    {id:"v6-8", date:"Apr 16, 2026",type:"Immunotherapy Infusion",              category:"immunotherapy",status:"completed",  cycle:"Cycle 8, Day 1", provider:"Dr. Sam Fictional"},
   ],
 };
 
@@ -428,7 +428,7 @@ function buildFilledSteps(
 
 const MOCK_ENCOUNTERS: Record<string, WorkflowStep[]> = {
 
-  // ── Robert Fanning — Pembrolizumab NSCLC ──────────────────────────────────
+  // ── John Doe — Pembrolizumab NSCLC ────────────────────────────────────────
   "v1-8": buildFilledSteps("immunotherapy", {
     vitals: { bp:"128/76", hr:"72", spo2:"97", temp:"98.2", weight:"187" },
     labs: { wbc:"6.2", anc:"3.8", hgb:"11.4", plt:"214", creatinine:"1.4", alt:"28", tsh:"2.1",
@@ -461,7 +461,7 @@ const MOCK_ENCOUNTERS: Record<string, WorkflowStep[]> = {
       instructions:"Continue current regimen. Imaging every 3 cycles. Monitor PD-L1 expression on repeat biopsy if progression." },
   }),
 
-  // ── Priya Nair — Pembrolizumab + Paclitaxel TNBC ─────────────────────────
+  // ── Jane Doe — Pembrolizumab + Paclitaxel TNBC ────────────────────────────
   "v2-3": buildFilledSteps("immunotherapy", {
     vitals: { bp:"112/70", hr:"88", spo2:"99", temp:"98.1", weight:"134" },
     labs: { wbc:"3.9", anc:"1.8", hgb:"10.2", plt:"188", creatinine:"0.8", alt:"42", tsh:"5.8",
@@ -487,7 +487,7 @@ const MOCK_ENCOUNTERS: Record<string, WorkflowStep[]> = {
       instructions:"Monitor for peripheral neuropathy. CBC 1 week post-treatment. Anti-emetics prescribed. Call with fever or new neurological symptoms." },
   }),
 
-  // ── Thomas Osei — Nivolumab + Ipilimumab Melanoma ────────────────────────
+  // ── Rob Doe — Nivolumab + Ipilimumab Melanoma ─────────────────────────────
   "v3-1": buildFilledSteps("immunotherapy", {
     vitals: { bp:"122/78", hr:"68", spo2:"99", temp:"98.0", weight:"198" },
     labs: { wbc:"7.1", anc:"4.2", hgb:"13.6", plt:"302", creatinine:"0.9", alt:"88", tsh:"1.9",
@@ -505,7 +505,7 @@ const MOCK_ENCOUNTERS: Record<string, WorkflowStep[]> = {
       instructions:"Low-fiber diet. Strict bowel movement log. Return immediately if diarrhea worsens or fever develops. LFTs to be repeated in 1 week." },
   }),
 
-  // ── Linda Morales — Carboplatin + Paclitaxel Ovarian ─────────────────────
+  // ── Linda Doe — Carboplatin + Paclitaxel Ovarian ──────────────────────────
   "v4-2": buildFilledSteps("chemotherapy", {
     vitals: { bp:"138/86", hr:"76", spo2:"96", temp:"98.6", weight:"162" },
     labs: { wbc:"2.8", anc:"0.9", hgb:"8.7", plt:"92", creatinine:"1.1", alt:"34", tsh:"1.4",
@@ -531,7 +531,7 @@ const MOCK_ENCOUNTERS: Record<string, WorkflowStep[]> = {
       instructions:"Anti-emetics prescribed for home use. Report tingling or numbness immediately. Neutropenic precautions reviewed. Avoid aspirin products per allergy." },
   }),
 
-  // ── James Whitfield — Pembrolizumab Hodgkin Lymphoma ─────────────────────
+  // ── James Doe — Pembrolizumab Hodgkin Lymphoma ────────────────────────────
   "v5-5": buildFilledSteps("immunotherapy", {
     vitals: { bp:"118/74", hr:"64", spo2:"99", temp:"97.8", weight:"176" },
     labs: { wbc:"5.5", anc:"3.1", hgb:"12.8", plt:"244", creatinine:"0.7", alt:"22", tsh:"2.6",
@@ -557,7 +557,7 @@ const MOCK_ENCOUNTERS: Record<string, WorkflowStep[]> = {
       instructions:"PET scan scheduled prior to C5 to assess metabolic response. Continue activity as tolerated. No dietary restrictions." },
   }),
 
-  // ── Diana Rourke — Nivolumab + Cabozantinib RCC ───────────────────────────
+  // ── Diana Doe — Nivolumab + Cabozantinib RCC ──────────────────────────────
   "v6-10": buildFilledSteps("immunotherapy", {
     vitals: { bp:"148/90", hr:"70", spo2:"98", temp:"98.3", weight:"154" },
     labs: { wbc:"6.8", anc:"4.0", hgb:"12.1", plt:"198", creatinine:"1.2", alt:"51", tsh:"6.2",
@@ -799,6 +799,154 @@ function buildPatientBaselines(patientId: string): BaselineMetric[] {
 }
 
 // ─── Encounter detail (within visit tab) ─────────────────────────────────────
+
+// ─── CDS: Treatment Recommendation ────────────────────────────────────────────
+//
+// Auto-generates a treatment decision (continue / hold / discontinue) plus a
+// suggested intervention when a Grade ≥2 toxicity is documented. Rules follow
+// FDA prescribing information (Keytruda/pembrolizumab, Opdivo/nivolumab,
+// Yervoy/ipilimumab) and NCCN Guidelines: Management of Immunotherapy-Related
+// Toxicities (v1.2025). Mock content — for demo/mockup use only.
+
+type TreatmentDecision = "continue" | "hold" | "discontinue";
+
+type CDSRecommendation = {
+  decision: TreatmentDecision;
+  decisionLabel: string;
+  intervention: string;                // symptom-specific medication/action
+  ioAgent: string;                     // primary IO agent identified from meds
+  nccnCitation: string;                // NCCN guideline reference
+  piCitation: string;                  // Package Insert reference
+  rationale: string;                   // one-line summary of why
+};
+
+function detectPrimaryIO(medications: string[]): string {
+  const meds = medications.join(" ").toLowerCase();
+  if (meds.includes("pembrolizumab")) return "Pembrolizumab";
+  if (meds.includes("nivolumab") && meds.includes("ipilimumab")) return "Nivolumab + Ipilimumab";
+  if (meds.includes("nivolumab")) return "Nivolumab";
+  if (meds.includes("ipilimumab")) return "Ipilimumab";
+  if (meds.includes("atezolizumab")) return "Atezolizumab";
+  if (meds.includes("durvalumab")) return "Durvalumab";
+  return medications[0] ?? "Immunotherapy";
+}
+
+// Per-module × per-grade intervention library. Keyed by CTCAE module id.
+// Each entry returns intervention text; hepatitis/nephritis text refers to
+// the specific lab abnormality rather than a generic "symptom".
+function buildIntervention(moduleId: string, grade: number, ioAgent: string): string {
+  const holdIO = `Withhold ${ioAgent} until resolution to ≤ Grade 1.`;
+  const permDiscIO = `Permanently discontinue ${ioAgent}.`;
+
+  switch (moduleId) {
+    case "pneumonitis":
+      if (grade === 2) return `${holdIO} Start prednisone 1–2 mg/kg/day PO. Obtain chest CT and pulse ox. If no improvement in 48–72 hr, escalate per NCCN IMMUNO-A.`;
+      if (grade === 3) return `${permDiscIO} Admit for methylprednisolone 1–2 mg/kg/day IV. Consider infliximab, MMF, or IVIG if steroid-refractory at 48 hr. Empiric antibiotics until infection ruled out.`;
+      if (grade >= 4) return `${permDiscIO} ICU-level care. Methylprednisolone 1–2 mg/kg/day IV; add second-line immunosuppression (infliximab/MMF/IVIG) if no response at 24–48 hr.`;
+      break;
+
+    case "colitis":
+      if (grade === 2) return `${holdIO} Prednisone 1–2 mg/kg/day PO with taper over ≥ 4 weeks. Rule out infectious etiology (C. diff, stool studies). Consider GI consult for endoscopy.`;
+      if (grade === 3) return `${holdIO} Admit; methylprednisolone 1–2 mg/kg/day IV. If refractory at 48–72 hr, add infliximab 5 mg/kg or vedolizumab 300 mg. GI consult required.`;
+      if (grade >= 4) return `${permDiscIO} ICU admission. Methylprednisolone 1–2 mg/kg/day IV plus early infliximab or vedolizumab. Surgical consult if perforation suspected.`;
+      break;
+
+    case "skin":
+      if (grade === 2) return `Continue ${ioAgent} with close monitoring. Topical corticosteroid (triamcinolone 0.1% BID) and oral antihistamine (diphenhydramine 25–50 mg PO q6h PRN). If persistent > 1 week, consider prednisone 0.5–1 mg/kg/day.`;
+      if (grade === 3) return `${holdIO} Prednisone 0.5–1 mg/kg/day PO. Dermatology consult. Rule out SJS/TEN — hospitalize if bullae, mucosal involvement, or Nikolsky sign present.`;
+      if (grade >= 4) return `${permDiscIO} Emergent admission (burn unit if SJS/TEN suspected). Methylprednisolone 1–2 mg/kg/day IV. Dermatology consult stat.`;
+      break;
+
+    case "hepatitis":
+      if (grade === 2) return `${holdIO} Recheck LFTs 1–2× per week. Start prednisone 0.5–1 mg/kg/day PO if elevation persists > 3–5 days. Rule out viral hepatitis, alcohol, other hepatotoxins.`;
+      if (grade === 3) return `${holdIO} (permanently discontinue combination ipilimumab regimens). Methylprednisolone 1–2 mg/kg/day IV. Daily LFTs. Hepatology consult. Consider MMF 500–1000 mg BID if refractory at 3–5 days.`;
+      if (grade >= 4) return `${permDiscIO} Admit; methylprednisolone 2 mg/kg/day IV. Add MMF; consider tacrolimus. Hepatology consult; evaluate for liver biopsy.`;
+      break;
+
+    case "nephritis":
+      if (grade === 2) return `${holdIO} Prednisone 0.5–1 mg/kg/day PO. Nephrology consult. Recheck creatinine every 2–3 days. Discontinue nephrotoxic co-medications (NSAIDs, PPIs).`;
+      if (grade === 3) return `${holdIO} Methylprednisolone 1–2 mg/kg/day IV. Nephrology consult; consider renal biopsy. If no improvement in 1 week, add MMF or infliximab.`;
+      if (grade >= 4) return `${permDiscIO} Admit; methylprednisolone 1–2 mg/kg/day IV. Dialysis if indicated. Renal biopsy typically required.`;
+      break;
+
+    case "diarrhea":
+      if (grade === 2) return `${holdIO} Loperamide 4 mg initial, then 2 mg after each loose stool (max 16 mg/day). Rule out infectious cause (C. diff, stool cx). If persists > 3 days or blood/mucus present, treat as colitis and start prednisone 1–2 mg/kg/day.`;
+      if (grade === 3) return `${holdIO} Admit for IV fluids and electrolytes. Methylprednisolone 1–2 mg/kg/day IV. Rule out colitis (endoscopy). If refractory 48–72 hr, infliximab 5 mg/kg.`;
+      if (grade >= 4) return `${permDiscIO} ICU-level care. Methylprednisolone 1–2 mg/kg/day IV plus early infliximab or vedolizumab. Surgical evaluation if perforation suspected.`;
+      break;
+
+    case "other":
+      if (grade === 2) return `${holdIO} Evaluate the specific adverse event and manage per NCCN Immunotherapy Toxicity Guidelines for the organ system involved. Consider prednisone 0.5–1 mg/kg/day if immune-mediated.`;
+      if (grade === 3) return `${holdIO} Admit and evaluate. Methylprednisolone 1–2 mg/kg/day IV for suspected immune-mediated etiology. Sub-specialty consult per organ system.`;
+      if (grade >= 4) return `${permDiscIO} Emergent evaluation and organ-specific consult. High-dose IV methylprednisolone.`;
+      break;
+  }
+  return `Manage per NCCN Immunotherapy Toxicity Guidelines and ${ioAgent} prescribing information.`;
+}
+
+// NCCN section anchors used in the CDS card. These are the section keys inside
+// the NCCN Management of Immunotherapy-Related Toxicities guideline.
+function nccnSectionFor(moduleId: string): string {
+  switch (moduleId) {
+    case "pneumonitis": return "IMMUNO-A (Pulmonary Toxicity)";
+    case "colitis":
+    case "diarrhea":    return "IMMUNO-B (GI Toxicity)";
+    case "skin":        return "IMMUNO-C (Dermatologic Toxicity)";
+    case "hepatitis":   return "IMMUNO-D (Hepatic Toxicity)";
+    case "nephritis":   return "IMMUNO-E (Renal Toxicity)";
+    default:            return "IMMUNO-Overview";
+  }
+}
+
+function buildCDSRecommendation(
+  results: ModuleResult[],
+  patient: Patient
+): CDSRecommendation | null {
+  // Find the driver toxicity — highest grade among screened-positive modules.
+  const positives = CTCAE_MODULES
+    .map((m, i) => ({ m, r: results[i] }))
+    .filter(({ r }) => r.screening === "yes" && (r.grade ?? 0) >= 2);
+  if (positives.length === 0) return null;
+
+  const driver = positives.reduce((worst, cur) =>
+    (cur.r.grade ?? 0) > (worst.r.grade ?? 0) ? cur : worst
+  );
+  const grade = driver.r.grade ?? 2;
+  const moduleId = driver.m.id;
+  const ioAgent = detectPrimaryIO(patient.medications);
+
+  // Combination ipilimumab regimens have a lower threshold for permanent
+  // discontinuation on hepatic toxicity per the Yervoy PI.
+  const isIpiCombo = ioAgent.includes("Ipilimumab");
+  const hepDiscThreshold = isIpiCombo ? 3 : 4;
+
+  let decision: TreatmentDecision;
+  if (grade >= 4) decision = "discontinue";
+  else if (moduleId === "hepatitis" && grade >= hepDiscThreshold) decision = "discontinue";
+  else if (grade === 3) decision = "hold";
+  else decision = "hold";
+
+  const decisionLabel =
+    decision === "hold" ? "Hold Treatment" : "Permanently Discontinue";
+
+  const piCitation =
+    ioAgent.includes("Pembrolizumab") ? "Keytruda® (pembrolizumab) Prescribing Information, § 5 Warnings and Precautions" :
+    ioAgent.includes("Ipilimumab")    ? "Yervoy® (ipilimumab) Prescribing Information, § 5 Warnings and Precautions" :
+    ioAgent.includes("Nivolumab")     ? "Opdivo® (nivolumab) Prescribing Information, § 5 Warnings and Precautions" :
+    ioAgent.includes("Atezolizumab")  ? "Tecentriq® (atezolizumab) Prescribing Information, § 5 Warnings and Precautions" :
+    ioAgent.includes("Durvalumab")    ? "Imfinzi® (durvalumab) Prescribing Information, § 5 Warnings and Precautions" :
+                                        `${ioAgent} Prescribing Information`;
+
+  return {
+    decision,
+    decisionLabel,
+    intervention: buildIntervention(moduleId, grade, ioAgent),
+    ioAgent,
+    nccnCitation: `NCCN Guidelines: Management of Immunotherapy-Related Toxicities v1.2025 · ${nccnSectionFor(moduleId)}`,
+    piCitation,
+    rationale: `Grade ${grade} ${driver.m.label.toLowerCase()} on ${ioAgent} — highest documented toxicity this encounter.`,
+  };
+}
 
 // ─── Symptom Assessment Wizard ────────────────────────────────────────────────
 
@@ -1133,7 +1281,7 @@ function autoGradeDiarrhea(valueStr: string): number | null {
 }
 
 function SymptomAssessmentWizard({
-  labValues, labBaselines = {}, savedResults, savedEscalation, onResultsChange, onEscalationChange, onComplete, readOnly = false, baselineMetrics = [],
+  labValues, labBaselines = {}, savedResults, savedEscalation, onResultsChange, onEscalationChange, onComplete, readOnly = false, baselineMetrics = [], patient,
 }: {
   labValues: Record<string, string>;
   labBaselines?: Record<string, string>;
@@ -1144,6 +1292,7 @@ function SymptomAssessmentWizard({
   onComplete: () => void;
   readOnly?: boolean;
   baselineMetrics?: BaselineMetric[];
+  patient?: Patient;
 }) {
   const initResults = (): ModuleResult[] =>
     CTCAE_MODULES.map(mod => {
@@ -1181,6 +1330,28 @@ function SymptomAssessmentWizard({
   const [results, setResults] = useState<ModuleResult[]>(savedResults ?? initResults);
   const [showSummary, setShowSummary] = useState(() => !!savedResults && isAllDone(savedResults));
   const [escalation, setEscalation] = useState<EscalationState>(savedEscalation ?? { ...DEFAULT_ESCALATION });
+  // True when the current treatmentDecision was seeded by the CDS recommendation
+  // and not yet touched by the user. Flips to false the moment they click any
+  // decision button (even if they click the same one CDS suggested).
+  const [decisionAutoApplied, setDecisionAutoApplied] = useState(false);
+
+  // Pre-select the provider treatment decision from the CDS recommendation
+  // once the summary is reached and Grade ≥2 findings exist. Only seeds when
+  // the field is currently empty — never overrides a provider selection.
+  const cdsForEffect = patient ? buildCDSRecommendation(results, patient) : null;
+  const cdsDecisionForEffect = cdsForEffect?.decision ?? "";
+  useEffect(() => {
+    if (readOnly) return;
+    if (!cdsDecisionForEffect) return;
+    if (escalation.treatmentDecision !== "") return;
+    setEscalation(prev => {
+      const next = { ...prev, treatmentDecision: cdsDecisionForEffect };
+      onEscalationChange?.(next);
+      return next;
+    });
+    setDecisionAutoApplied(true);
+  }, [cdsDecisionForEffect, readOnly, escalation.treatmentDecision, onEscalationChange]);
+
   // Tracks per-metric acknowledgement that the user picked a grade from the
   // rule-set that doesn't match the patient's baseline (e.g. clicked a
   // baseline-normal grade for a patient whose baseline is >ULN). Applies to
@@ -1330,6 +1501,7 @@ function SymptomAssessmentWizard({
     const escalationComplete = !hasHighGrade || (escalation.nurseNotes.trim().length > 0 && notifDone && treatmentDone && followUpDone);
 
     const ehrAutoText = buildEhrAutoMessage(results, baselineMetrics);
+    const cds = patient ? buildCDSRecommendation(results, patient) : null;
 
     return (
       <div className="space-y-4">
@@ -1429,6 +1601,65 @@ function SymptomAssessmentWizard({
                 </div>
               </div>
             </div>
+
+            {/* ── CDS: Recommended Treatment Decision ── */}
+            {cds && (() => {
+              const isDisc = cds.decision === "discontinue";
+              const pillBg   = isDisc ? "var(--sev-critical-bg)" : "var(--sev-warning-bg)";
+              const pillFg   = isDisc ? "var(--grade-3-fg)"      : "var(--sev-warning-fg)";
+              const pillBrdr = isDisc ? "#fca5a5"                : "#fcd34d";
+              return (
+                <div className="rounded border overflow-hidden" style={{ borderColor: "rgba(15,39,68,0.1)" }}>
+                  <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ background: "#f8fafc", borderColor: "rgba(15,39,68,0.08)" }}>
+                    <Zap size={12} style={{ color: "var(--accent)" }} />
+                    <span className="text-xs font-semibold text-foreground">Clinical Decision Support — Recommended Action</span>
+                    <span className="ml-auto text-[10px] font-medium px-2 py-0.5 rounded-sm uppercase tracking-wider"
+                      style={{ background: "var(--accent-soft-bg)", color: "var(--accent)" }}>Auto-generated</span>
+                  </div>
+                  <div className="px-4 py-3 space-y-3">
+                    {/* Decision pill */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+                        Recommended Decision
+                      </span>
+                      <span className="text-sm font-bold px-2.5 py-1 rounded-sm border"
+                        style={{ background: pillBg, color: pillFg, borderColor: pillBrdr }}>
+                        {cds.decisionLabel}
+                      </span>
+                    </div>
+                    {/* Rationale */}
+                    <div className="text-xs" style={{ color: "var(--foreground)" }}>
+                      <span className="font-semibold">Rationale: </span>
+                      <span className="text-muted-foreground">{cds.rationale}</span>
+                    </div>
+                    {/* Intervention */}
+                    <div className="rounded-sm border px-3 py-2.5" style={{ background: "#fff", borderColor: "rgba(15,39,68,0.08)" }}>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: "var(--accent)" }}>
+                        Suggested Intervention
+                      </div>
+                      <div className="text-xs leading-relaxed" style={{ color: "var(--foreground)" }}>
+                        {cds.intervention}
+                      </div>
+                    </div>
+                    {/* Guideline citations */}
+                    <div className="space-y-1 pt-1 border-t" style={{ borderColor: "rgba(15,39,68,0.06)" }}>
+                      <div className="text-[10px] font-semibold uppercase tracking-wider pt-2" style={{ color: "var(--muted-foreground)" }}>
+                        Guideline References
+                      </div>
+                      <div className="text-[11px] leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+                        <span className="font-medium" style={{ color: "var(--foreground)" }}>NCCN: </span>{cds.nccnCitation}
+                      </div>
+                      <div className="text-[11px] leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+                        <span className="font-medium" style={{ color: "var(--foreground)" }}>PI: </span>{cds.piCitation}
+                      </div>
+                    </div>
+                    <div className="text-[10px] italic pt-1" style={{ color: "var(--muted-foreground)" }}>
+                      Decision support for provider review. Final treatment decision must be confirmed by the ordering provider.
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Section wrapper helper */}
             {/* ── 1. Nurse Assessment Notes ── */}
@@ -1593,6 +1824,13 @@ function SymptomAssessmentWizard({
               <div className="rounded border overflow-hidden" style={{ borderColor: "rgba(15,39,68,0.1)" }}>
                 <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ background: "#f8fafc", borderColor: "rgba(15,39,68,0.08)" }}>
                   <span className="text-xs font-semibold text-foreground">Provider Treatment Decision</span>
+                  {decisionAutoApplied && cds && (
+                    <span className="ml-auto flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-sm uppercase tracking-wider"
+                      style={{ background: "var(--accent-soft-bg)", color: "var(--accent)" }}
+                      title="Pre-selected from Clinical Decision Support based on CTCAE grade and prescribing information. Change if clinical judgment differs.">
+                      <Zap size={10} /> Auto-selected from CDS
+                    </span>
+                  )}
                 </div>
                 <div className="px-4 py-3 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
@@ -1605,15 +1843,18 @@ function SymptomAssessmentWizard({
                       const sel = escalation.treatmentDecision === opt.val;
                       const isCont = opt.val === "continue";
                       const isDisc = opt.val === "discontinue";
+                      const isAutoPick = decisionAutoApplied && sel;
                       return (
-                        <button key={opt.val} onClick={() => updateEsc({ treatmentDecision: opt.val })}
-                          className="py-2 px-3 text-xs font-medium rounded-sm border text-left transition-all"
+                        <button key={opt.val}
+                          onClick={() => { setDecisionAutoApplied(false); updateEsc({ treatmentDecision: opt.val }); }}
+                          className="py-2 px-3 text-xs font-medium rounded-sm border text-left transition-all flex items-center gap-1.5"
                           style={{
                             background: sel ? (isCont ? "var(--sev-ok-bg)" : isDisc ? "var(--sev-critical-bg)" : "var(--sev-warning-bg)") : "#fff",
                             borderColor: sel ? (isCont ? "#86efac" : isDisc ? "#fca5a5" : "#fcd34d") : "rgba(15,39,68,0.12)",
                             color: sel ? (isCont ? "var(--sev-ok-fg)" : isDisc ? "var(--grade-3-fg)" : "var(--sev-warning-fg)") : "var(--primary)",
                           }}>
-                          {opt.label}
+                          {isAutoPick && <Zap size={10} style={{ color: "var(--accent)" }} />}
+                          <span>{opt.label}</span>
                         </button>
                       );
                     })}
@@ -1622,6 +1863,12 @@ function SymptomAssessmentWizard({
                     <input type="text" placeholder="Specify treatment decision..." value={escalation.treatmentDecisionOther}
                       onChange={e => updateEsc({ treatmentDecisionOther: e.target.value })}
                       className="w-full px-3 py-2 text-sm rounded-sm border border-border bg-white text-foreground focus:outline-none focus:border-accent" />
+                  )}
+                  {decisionAutoApplied && cds && (
+                    <div className="text-[11px] italic flex items-start gap-1.5 pt-1" style={{ color: "var(--muted-foreground)" }}>
+                      <span aria-hidden>ⓘ</span>
+                      <span>Pre-selected based on CDS analysis of the highest documented CTCAE grade and {cds.ioAgent} prescribing information. Provider may change this selection.</span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -2658,6 +2905,7 @@ function EncounterDetail({ visit, onBack, savedNote, onSave, patientMeds, baseli
                         labValues={{}}
                         readOnly
                         baselineMetrics={baselineMetrics}
+                        patient={PATIENTS[patientId]}
                         savedResults={(() => {
                           const raw = step.fieldValues["wizard_results"];
                           if (!raw) return undefined;
@@ -2843,6 +3091,7 @@ function EncounterDetail({ visit, onBack, savedNote, onSave, patientMeds, baseli
                         labValues={buildLabPrefill(patientId)}
                         labBaselines={buildLabBaselines(patientId)}
                         baselineMetrics={baselineMetrics}
+                        patient={PATIENTS[patientId]}
                         savedResults={(() => {
                           const raw = step.fieldValues["wizard_results"];
                           if (!raw) return undefined;
